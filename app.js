@@ -1,0 +1,130 @@
+//CMPT 470 Technical evaluation Node.js, groupApollo
+//Server side application for game, loads files to clients and passes routes messages between
+//clients. Also arbitrates scoring by issuing out the points.
+//Outstanding items of work are:
+//1#-need a way to tell the players who is a robot and who is an enemy.
+//need to reset the screen and game players when the points have been given out. ie, the
+//robot has eaten all the dots, so we need to fill the maze back up with dots and start the game again
+// with the current robot player.
+//2#-manage the users, if a user stops playing we need to remove them from the group on the 
+//server side. Currently the users are only known on client side.
+
+
+// Including libraries
+var app = require('http').createServer(handler),
+	io = require('socket.io').listen(app),
+	static = require('node-static'); // for serving files
+
+//size of each square in pixels
+var gridSize=30;
+var players=0;
+//total number of points in the maze
+var points=408;
+
+//'2' represent a point in the maze, the grid index is read, if 2 give point to player and 
+//modify  the grid to '0'
+var maze=	[[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+			 [1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],
+			 [1,2,1,1,1,1,1,2,1,1,1,1,2,1,1,2,1,1,1,2,1,2,1,1,1,2,1,1,2,1,1,1,1,2,1,1,1,1,1,2,1],
+			 [1,2,2,2,2,2,2,2,2,2,2,2,2,1,1,2,1,1,1,2,1,2,1,1,1,2,1,1,2,2,2,2,2,2,2,2,2,2,2,2,1],
+			 [1,1,1,1,1,2,1,2,1,1,1,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1,1,1,1,2,1,2,1,1,1,1,1],
+			 [1,2,2,2,2,2,2,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,2,2,2,2,2,2,1],
+			 [0,2,1,1,1,1,1,2,2,2,2,2,2,2,2,2,2,2,2,1,1,2,2,2,2,2,2,2,2,2,2,2,2,2,1,1,1,1,1,2,2],
+			 [1,2,1,1,1,1,1,2,1,1,1,1,1,1,2,1,1,1,1,1,1,1,1,1,1,1,1,2,1,1,1,1,1,2,1,1,1,1,1,2,1],
+			 [1,2,2,2,2,2,2,2,1,1,1,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1,1,1,1,2,2,2,2,2,2,2,1],
+			 [1,1,2,1,1,1,1,2,2,2,2,1,2,1,1,2,1,2,1,1,1,1,1,2,1,2,1,1,2,1,2,2,2,2,1,1,1,1,2,1,1],
+			 [1,1,2,1,1,1,1,2,1,1,2,1,2,1,1,2,1,2,1,1,1,1,1,2,1,2,1,1,2,1,2,1,1,2,1,1,1,1,2,1,1],
+			 [1,2,2,2,2,2,2,2,1,1,2,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1,2,1,1,2,2,2,2,2,2,2,1],
+			 [1,2,1,1,1,1,1,2,1,1,2,1,1,1,2,1,1,1,2,1,1,2,1,1,1,1,1,2,1,1,2,1,1,2,1,1,1,1,1,2,1],
+			 [0,2,1,1,1,1,1,2,2,2,2,2,2,2,2,2,1,2,2,1,1,2,2,2,1,2,2,2,2,2,2,2,2,2,1,1,1,1,1,2,2],
+			 [1,2,2,2,2,2,2,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,2,2,2,2,2,2,1],
+			 [1,1,1,1,1,2,1,2,1,1,1,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1,1,1,1,2,1,2,1,1,1,1,1],
+			 [1,2,2,2,2,2,2,2,2,2,2,2,2,1,1,2,1,1,1,2,1,2,1,1,1,2,1,1,2,2,2,2,2,2,2,2,2,2,2,2,1],
+			 [1,2,1,1,1,1,1,2,1,1,1,1,2,1,1,2,2,2,2,2,1,2,2,2,2,2,1,1,2,1,1,1,1,2,1,1,1,1,1,2,1],
+			 [1,2,1,1,1,1,1,2,1,1,1,1,2,1,1,2,1,1,1,2,1,2,1,1,1,2,1,1,2,1,1,1,1,2,1,1,1,1,1,2,1],
+			 [1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],
+			 [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]];
+
+//make copy of maze, will modify copy while leaving original intact
+var mazeClone=maze.slice();
+
+// This will make all the files in the current folder
+// accessible from the web
+var fileServer = new static.Server('./');
+	
+// This is the port for our web server.
+// you will need to go to http://localhost:8080 to see it
+app.listen(8080);
+
+// If the URL of the socket server is opened in a browser
+function handler (request, response) {
+
+	request.addListener('end', function () {
+        fileServer.serve(request, response);
+    });
+}
+
+// Delete this row if you want to see debug messages
+io.set('log level', 1);
+
+// Listen for incoming connections from clients
+//the main loop for each client.
+//all client message passing and logic code should be in here.
+io.sockets.on('connection', function (socket) {
+
+	//send the current state of the maze to the client
+	socket.emit('sendMaze',{
+		'maze':mazeClone
+	});
+
+
+//start game when button pushed
+socket.on('startGame',function(){
+	socket.broadcast.emit('start',{});
+	socket.emit('start',{});
+})
+
+// Start listening for mouse move events
+//also checks for dots being eaten and gives the
+//point to the player
+//need to have a way of resetting the board when points=0
+	socket.on('xymove', function (data) {
+		if (data.robot==1){
+			var xGrid=data.x;
+			var yGrid=data.y;
+			xGrid=Math.floor(xGrid/gridSize);
+			yGrid=Math.floor(yGrid/gridSize);
+				//check if point available,if so send it to player
+			if (mazeClone[yGrid][xGrid]==2){
+				socket.emit('point',{'x':xGrid,
+					'y':yGrid});
+				console.log("giving point to "+data.id);
+			socket.broadcast.emit('removePoint',{'x':xGrid,
+					'y':yGrid});
+			mazeClone[yGrid][xGrid]=0;
+			points-=1;
+			}				
+		}
+		// This line sends the event (broadcasts it)
+		// to everyone except the originating client.
+		socket.broadcast.emit('xymoving', data);
+	});
+
+//add new player to everyones board
+	socket.on('addPlayer',function(data){
+		socket.broadcast.emit('plusPlayer',data);
+	});
+
+//catch robot collision to halt play
+//doesn't stop game right now for testing purposes
+	socket.on('collision',function (data){
+		console.log("collision between"+data.id+" and "+data.other);
+		socket.broadcast.emit('stop',data);
+	socket.emit('stop',data);
+	});
+
+//not functional yet
+	socket.on('remove',function(){
+	
+	});
+});
