@@ -7,6 +7,9 @@
 //keypresses change direction of user. Other players positions are updated through message passing
 //user collects points. Collision detection is between the user and the maze and the other players.
 //robot is dead when he collides with enemy. Enemy collisions between themselves dont'matter.
+
+//use WASD keys to move robot
+
 //Outstanding items of work are:
 //#1-find a way of setting up game with one robot and n-1 enemy.
 //#2-when robot is caught by enemy, the enemy now becomes the robot.
