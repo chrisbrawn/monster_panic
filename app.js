@@ -20,6 +20,7 @@ var gridSize=30;
 var players=0;
 //total number of points in the maze
 var points=408;
+var whoIsRobot=0;
 
 //'2' represent a point in the maze, the grid index is read, if 2 give point to player and 
 //modify  the grid to '0'
@@ -82,10 +83,14 @@ io.sockets.on('connection', function (socket) {
 	});
 
 
+
+
 //start game when button pushed
-socket.on('startGame',function(){
-	socket.broadcast.emit('start',{});
-	socket.emit('start',{});
+socket.on('resetGame',function(){
+	whoIsRobot=0;
+	socket.emit('robot',{robot:1})
+	socket.broadcast.emit('robot',{robot:0})
+	
 })
 
 // Start listening for mouse move events
@@ -128,8 +133,19 @@ for (var i = 0; i < maze.length; i++)
 
 //add new player to everyones board
 	socket.on('addPlayer',function(data){
-	//	socket.broadcast.emit('plusPlayer',data);
+	if (whoIsRobot==0){
+socket.emit('robot',{
+	robot:1
+})
+whoIsRobot=1;
+	}
+	else{
+		socket.emit('robot',{
+	robot:0
+});
+	}
 	});
+
 
 //catch robot collision to halt play
 //doesn't stop game right now for testing purposes

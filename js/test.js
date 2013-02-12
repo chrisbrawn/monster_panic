@@ -57,7 +57,7 @@ window.onload = function(){
 var stage = new Kinetic.Stage({
 	container: 'maze',
 	width: 1260,
-	height: 800
+	height: 650
 });
 
 //sound for eating dot
@@ -88,7 +88,8 @@ var gridSize=30;
 //speed of players, don't change
 var speed=10;
 //holds current player direction
-var myDirection = 'right';
+var myDirection = '';
+var previousDirection ='';
 // Generate an unique ID
 var id = Math.round($.now()*Math.random());
 
@@ -139,6 +140,7 @@ var robotObj;
    robotImg.onload = function() {
      	if (robot==1){
         var blob = new Kinetic.Sprite({
+        name:'robot',
           x: gridSize*20,
           y: gridSize*11,
           image: imagesLoaded.robot,
@@ -152,6 +154,7 @@ var robotObj;
         robotObj.start();
     }else{
     	var blob = new Kinetic.Sprite({
+    	name:'monster',
           x: gridSize*20,
           y: gridSize*11,
           image: monsterImg,
@@ -229,10 +232,14 @@ var addPlayer=function(){
 }
 addPlayer();
 
-//on click start game
-$('#start').on('click',function(){
-	socket.emit('startGame',{});
-})
+
+//tries to reset players to new robot, this user who pushed the button
+//and gives out monster id's to everyone else.
+//doesn't work perfectly yet.
+$("#reset").on("click",function(){
+	socket.emit('resetGame',{});
+});
+
 
 //draw the points, updated on each redraw.
 var bgPoints=function(){
@@ -365,33 +372,16 @@ charlayer.add(myRect);
 charlayer.draw();
 
 
-
-//on 'plusPlayer' message from server add a new player to the game
-socket.on('plusPlayer',function(data){
-	if(! (data.id in clients)){
-			var otherRect = new Kinetic.Rect({
-		x: gridSize,
-		y: gridSize,
-		width: gridSize,
-		height:gridSize,
-		fill: randomHexGenerator(),
-		stroke:'black',
-		strokeWidth: 1
-			});
-			characters[data.id]=otherRect;
-			charlayer.add(otherRect);
-		}
-		clients[data.id] = data;
-		clients[data.id].updated = $.now();
-		players+=1;
-
+//get robot value 1=robot, 0=monster
+socket.on('robot',function(data){
+	robot=data.robot;
 });
 
 //on  'xymoving' message from server update player positions
 socket.on('xymoving', function (data) {
 
 		if(! (data.id in clients)){
-		
+		if (data.robot==0){
 		var blob = new Kinetic.Sprite({
           x: gridSize*20,
           y: gridSize*11,
@@ -400,6 +390,16 @@ socket.on('xymoving', function (data) {
           animations: robotAnim,
           frameRate: 7
         });
+	}else{
+		var blob = new Kinetic.Sprite({
+          x: gridSize*20,
+          y: gridSize*11,
+          image: imagesLoaded.robot,
+          animation: 'right',
+          animations: robotAnim,
+          frameRate: 7
+        });
+	}
         //start event loop
         charlayer.add(blob);
         blob.start();
@@ -568,10 +568,11 @@ else if (myDirection=='up' && checkMaze('up')=='0' && xMod==0){
 //doesn't work yet
 var printScore=function(){
 	var output;
-	for (var dataID in clients){
-		output+="<p>"+dataID.name+"-"+dataID.score+"</p>";
-	}
-		$('#score').html(output);
+	output="Score: "+points+"\n";
+//	for (var i=0; i<characters.length; i++){
+//		output+=characters[i].name+"-"+characters[i].score+"\n";
+//	}
+		$('#score').text(output);
 }
 
 //on start message play game
@@ -583,10 +584,48 @@ socket.on('stop',function(data){
 //	clearInterval(intFunc);
 });
 
+
+//make sure that robot displayed is correct,
+//if robot=1 then robot
+//if robot=0 the monster
+var checkType=function(){
+	if  (robot=='0' && robotObj.getName()=='robot'){
+		var blob = new Kinetic.Sprite({
+    	name:'monster',
+          x: gridSize*20,
+          y: gridSize*11,
+          image: monsterImg,
+          animation: 'right',
+          animations: robotAnim,
+          frameRate: 7
+        }); 
+        robotObj.remove();
+        robotObj=blob;
+        charlayer.add(robotObj);
+
+        robotObj.start();
+	}else if 
+	(robot=='1' && robotObj.getName()=='monster'){
+		var blob = new Kinetic.Sprite({
+    	name:'robot',
+          x: gridSize*20,
+          y: gridSize*11,
+          image: robotImg,
+          animation: 'right',
+          animations: robotAnim,
+          frameRate: 7
+        }); 
+        robotObj.remove();
+        robotObj=blob;
+        charlayer.add(robotObj);
+
+        robotObj.start();
+	}
+}
 //redraw loop
 //called by SetInterval ever 50/1000 sec
 var redraw=function(){
-
+checkType();
 	updatePosition();
 	//send position information to everyone
 		socket.emit('xymove',{
@@ -595,6 +634,8 @@ var redraw=function(){
 				'id': id,
 				'score': points,
 				'name': playerName,
+				'currentDirection':myDirection,
+				'previousDirection':previousDirection,
 				'robot': robot
 			});
 		checkForCollisions();
