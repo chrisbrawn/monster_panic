@@ -29,14 +29,14 @@ var maze=	[[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
 			 [1,2,2,2,2,2,2,2,2,2,2,2,2,1,1,2,1,1,1,2,1,2,1,1,1,2,1,1,2,2,2,2,2,2,2,2,2,2,2,2,1],
 			 [1,1,1,1,1,2,1,2,1,1,1,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1,1,1,1,2,1,2,1,1,1,1,1],
 			 [1,2,2,2,2,2,2,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,2,2,2,2,2,2,1],
-			 [0,2,1,1,1,1,1,2,2,2,2,2,2,2,2,2,2,2,2,1,1,2,2,2,2,2,2,2,2,2,2,2,2,2,1,1,1,1,1,2,2],
+			 [2,2,1,1,1,1,1,2,2,2,2,2,2,2,2,2,2,2,2,1,1,2,2,2,2,2,2,2,2,2,2,2,2,2,1,1,1,1,1,2,2],
 			 [1,2,1,1,1,1,1,2,1,1,1,1,1,1,2,1,1,1,1,1,1,1,1,1,1,1,1,2,1,1,1,1,1,2,1,1,1,1,1,2,1],
 			 [1,2,2,2,2,2,2,2,1,1,1,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1,1,1,1,2,2,2,2,2,2,2,1],
 			 [1,1,2,1,1,1,1,2,2,2,2,1,2,1,1,2,1,2,1,1,1,1,1,2,1,2,1,1,2,1,2,2,2,2,1,1,1,1,2,1,1],
 			 [1,1,2,1,1,1,1,2,1,1,2,1,2,1,1,2,1,2,1,1,1,1,1,2,1,2,1,1,2,1,2,1,1,2,1,1,1,1,2,1,1],
 			 [1,2,2,2,2,2,2,2,1,1,2,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1,2,1,1,2,2,2,2,2,2,2,1],
 			 [1,2,1,1,1,1,1,2,1,1,2,1,1,1,2,1,1,1,2,1,1,2,1,1,1,1,1,2,1,1,2,1,1,2,1,1,1,1,1,2,1],
-			 [0,2,1,1,1,1,1,2,2,2,2,2,2,2,2,2,1,2,2,1,1,2,2,2,1,2,2,2,2,2,2,2,2,2,1,1,1,1,1,2,2],
+			 [2,2,1,1,1,1,1,2,2,2,2,2,2,2,2,2,1,2,2,1,1,2,2,2,1,2,2,2,2,2,2,2,2,2,1,1,1,1,1,2,2],
 			 [1,2,2,2,2,2,2,2,1,1,1,1,2,1,1,1,1,2,1,1,1,1,1,2,1,1,1,1,2,1,1,1,1,2,2,2,2,2,2,2,1],
 			 [1,1,1,1,1,2,1,2,1,1,1,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1,1,1,1,2,1,2,1,1,1,1,1],
 			 [1,2,2,2,2,2,2,2,2,2,2,2,2,1,1,2,1,1,1,2,1,2,1,1,1,2,1,1,2,2,2,2,2,2,2,2,2,2,2,2,1],
@@ -46,8 +46,12 @@ var maze=	[[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
 			 [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]];
 
 //make copy of maze, will modify copy while leaving original intact
-var mazeClone=maze.slice();
+var mazeClone = [];
 
+for (var i = 0; i < maze.length; i++)
+    mazeClone[i] = maze[i].slice();
+
+var clients={};
 // This will make all the files in the current folder
 // accessible from the web
 var fileServer = new static.Server('./');
@@ -89,6 +93,8 @@ socket.on('startGame',function(){
 //point to the player
 //need to have a way of resetting the board when points=0
 	socket.on('xymove', function (data) {
+
+			clients[data.id]=data;
 		if (data.robot==1){
 			var xGrid=data.x;
 			var yGrid=data.y;
@@ -102,7 +108,17 @@ socket.on('startGame',function(){
 			socket.broadcast.emit('removePoint',{'x':xGrid,
 					'y':yGrid});
 			mazeClone[yGrid][xGrid]=0;
-			points-=1;
+			points-=1;			
+if (points==0){	
+for (var i = 0; i < maze.length; i++)
+    mazeClone[i] = maze[i].slice();
+	socket.emit('sendMaze',{
+		'maze':mazeClone
+	});
+	console.log("resetting maze");
+
+	points=408;
+}
 			}				
 		}
 		// This line sends the event (broadcasts it)
@@ -112,7 +128,7 @@ socket.on('startGame',function(){
 
 //add new player to everyones board
 	socket.on('addPlayer',function(data){
-		socket.broadcast.emit('plusPlayer',data);
+	//	socket.broadcast.emit('plusPlayer',data);
 	});
 
 //catch robot collision to halt play

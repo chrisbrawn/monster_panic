@@ -25,6 +25,31 @@
 //tunnel and come out the other side.
 
 
+var imagesLoaded={};
+var sources = {
+	robot:'images/robot.png',
+	monster:'images/monster.png'
+}
+
+  function loadImages(sources) {
+        var loadedImages = 0;
+        var numImages = 0;
+        // get num of sources
+        for(var src in sources) {
+          numImages++;
+        }
+        for(var src in sources) {
+          imagesLoaded[src] = new Image();
+          imagesLoaded[src].onload = function() {
+           
+          };
+          imagesLoaded[src].src = sources[src];
+        }
+      }
+
+loadImages(sources);
+
+window.onload = function(){
 // The URL of your web server (the port is set in app.js)
 	var url = '192.168.15.101:8080';
 
@@ -100,17 +125,23 @@ var maze=	[[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
 var mazeClone;
 
 var robotImg = new Image();
+var monsterImg = new Image();
+
+  robotImg.src="images/robot.png"
+  monsterImg.src="images/monster.png"
+
 //pointer to this user
 var robotObj;
 
 //on image load, set up user, this will have to modified depending upon if
 //the user is a robot or enemy. Currently everyone is a robot.
 //loads up the animation targets and spritesheet
-     robotImg.onload = function() {
+   robotImg.onload = function() {
+     	if (robot==1){
         var blob = new Kinetic.Sprite({
           x: gridSize*20,
           y: gridSize*11,
-          image: robotImg,
+          image: imagesLoaded.robot,
           animation: 'right',
           animations: robotAnim,
           frameRate: 7
@@ -119,9 +150,24 @@ var robotObj;
         //start event loop
         charlayer.add(robotObj);
         robotObj.start();
+    }else{
+    	var blob = new Kinetic.Sprite({
+          x: gridSize*20,
+          y: gridSize*11,
+          image: monsterImg,
+          animation: 'right',
+          animations: robotAnim,
+          frameRate: 7
+        });
+        robotObj=blob;
+        //start event loop
+        charlayer.add(robotObj);
+        robotObj.start();
+    }
 }
 
-  robotImg.src="images/robot.png"
+
+
 
 //our bounding box object
 //is hidden from view.
@@ -318,6 +364,8 @@ x: 389,
 charlayer.add(myRect);
 charlayer.draw();
 
+
+
 //on 'plusPlayer' message from server add a new player to the game
 socket.on('plusPlayer',function(data){
 	if(! (data.id in clients)){
@@ -343,17 +391,20 @@ socket.on('plusPlayer',function(data){
 socket.on('xymoving', function (data) {
 
 		if(! (data.id in clients)){
-			var otherRect = new Kinetic.Rect({
-		x: gridSize,
-		y: gridSize,
-		width: gridSize,
-		height:gridSize,
-		fill: randomHexGenerator(),
-		stroke:'black',
-		strokeWidth: 1
-			});
-			characters[data.id]=otherRect;
-			charlayer.add(otherRect);
+		
+		var blob = new Kinetic.Sprite({
+          x: gridSize*20,
+          y: gridSize*11,
+          image: imagesLoaded.monster,
+          animation: 'right',
+          animations: robotAnim,
+          frameRate: 7
+        });
+        //start event loop
+        charlayer.add(blob);
+        blob.start();
+			characters[data.id]=blob;
+			charlayer.add(blob);
 				players+=1;
 		}
 		//move kinetic
@@ -524,10 +575,9 @@ var printScore=function(){
 }
 
 //on start message play game
-var intFunc;
-socket.on('start',function(){
-	 intFunc=setInterval(function(){redraw()},50);
-});
+
+
+var	 intFunc=setInterval(function(){redraw()},50);
 
 socket.on('stop',function(data){
 //	clearInterval(intFunc);
@@ -568,5 +618,5 @@ var redraw=function(){
 		}
 
 }
-
+}
 		
