@@ -77,10 +77,10 @@ stage.add(charlayer);
 
 //am I the robot or the ghosts?
 //need to find a way to assign this initially
-var robot=1;
+var robot=0;
 var points=0;
 //need way to assign personal name at start for each person
-var playerName='Spirou'
+var playerName='monster';
 //how many players
 var players=1;
 var gridSize=30;
@@ -152,6 +152,7 @@ var robotObj;
         //start event loop
         charlayer.add(robotObj);
         robotObj.start();
+        playerName='robot';
     }else{
     	var blob = new Kinetic.Sprite({
     	name:'monster',
@@ -166,6 +167,7 @@ var robotObj;
         //start event loop
         charlayer.add(robotObj);
         robotObj.start();
+        playerName='monster';
     }
 }
 
@@ -200,16 +202,16 @@ for (var i=0;i<21;i++){
       context.fillStyle = 'white';
       context.fill();
       context.lineWidth = 1;
-      context.strokeStyle = 'black';
+      context.strokeStyle = 'gainsboro';
       context.stroke();
 	}
 else{
 	context.beginPath();
  context.rect((j*gridSize),(i*gridSize), gridSize, gridSize);
-      context.fillStyle = 'green';
+      context.fillStyle = 'silver';
       context.fill();
       context.lineWidth = 1;
-      context.strokeStyle = 'black';
+      context.strokeStyle = 'grey';
       context.stroke();
 }
 }
@@ -375,40 +377,84 @@ charlayer.draw();
 //get robot value 1=robot, 0=monster
 socket.on('robot',function(data){
 	robot=data.robot;
+	if (data.robot=='1'){
+		playerName='robot';
+	}else{
+		playerName='monster';
+	}
+	checkType();
 });
 
 //on  'xymoving' message from server update player positions
 socket.on('xymoving', function (data) {
 
 		if(! (data.id in clients)){
-		if (data.robot==0){
+		if (data.robot==1 && data.name=='robot'){
 		var blob = new Kinetic.Sprite({
-          x: gridSize*20,
-          y: gridSize*11,
-          image: imagesLoaded.monster,
+			name:'robot',
+          x: data.x,
+          y: data.y,
+          image: imagesLoaded.robot,
           animation: 'right',
           animations: robotAnim,
           frameRate: 7
         });
 	}else{
 		var blob = new Kinetic.Sprite({
-          x: gridSize*20,
-          y: gridSize*11,
-          image: imagesLoaded.robot,
+			name:'monster',
+          x: data.x,
+          y: data.y,
+          image: imagesLoaded.monster,
           animation: 'right',
           animations: robotAnim,
           frameRate: 7
         });
 	}
+
         //start event loop
         charlayer.add(blob);
         blob.start();
 			characters[data.id]=blob;
-			charlayer.add(blob);
 				players+=1;
 		}
 		//move kinetic
 		var moveChar=characters[data.id];
+//		checktype(moveChar);
+if  (data.name=='monster' && moveChar.getName()=='robot'){
+		var blob = new Kinetic.Sprite({
+    	name:'monster',
+          x: moveChar.getX(),
+          y: moveChar.getY(),
+          image: monsterImg,
+          animation: 'right',
+          animations: robotAnim,
+          frameRate: 7
+        });
+        moveChar.remove(); 
+        moveChar=blob;
+        characters[data.id]=moveChar;
+        charlayer.add(moveChar);
+        moveChar.start();
+	}else if 
+	(data.name=='robot' && moveChar.getName()=='monster'){
+		var blob = new Kinetic.Sprite({
+    	name:'robot',
+          x: moveChar.getX(),
+          y: moveChar.getY(),
+          image: robotImg,
+          animation: 'right',
+          animations: robotAnim,
+          frameRate: 7
+        }); 
+         moveChar.remove(); 
+        moveChar=blob;
+        characters[data.id]=moveChar;
+        charlayer.add(moveChar);
+        moveChar.start(); 
+	}
+
+
+
 		moveChar.setX(data.x);
 		moveChar.setY(data.y);
 // Saving the current client state
@@ -625,7 +671,7 @@ var checkType=function(){
 //redraw loop
 //called by SetInterval ever 50/1000 sec
 var redraw=function(){
-checkType();
+
 	updatePosition();
 	//send position information to everyone
 		socket.emit('xymove',{

@@ -87,10 +87,10 @@ io.sockets.on('connection', function (socket) {
 
 //start game when button pushed
 socket.on('resetGame',function(){
-	whoIsRobot=0;
+	whoIsRobot=1;
 	socket.emit('robot',{robot:1})
 	socket.broadcast.emit('robot',{robot:0})
-	
+
 })
 
 // Start listening for mouse move events
