@@ -638,8 +638,8 @@ var checkType=function(){
 	if  (robot=='0' && robotObj.getName()=='robot'){
 		var blob = new Kinetic.Sprite({
     	name:'monster',
-          x: gridSize*20,
-          y: gridSize*11,
+          x: robotObj.getX(),
+          y: robotObj.getY(),
           image: monsterImg,
           animation: 'right',
           animations: robotAnim,
@@ -654,8 +654,8 @@ var checkType=function(){
 	(robot=='1' && robotObj.getName()=='monster'){
 		var blob = new Kinetic.Sprite({
     	name:'robot',
-          x: gridSize*20,
-          y: gridSize*11,
+          x: robotObj.getX(),
+          y: robotObj.getY(),
           image: robotImg,
           animation: 'right',
           animations: robotAnim,
