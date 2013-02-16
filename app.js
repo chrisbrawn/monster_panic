@@ -21,6 +21,8 @@ var players=0;
 //total number of points in the maze
 var points=408;
 var whoIsRobot=0;
+var d=new Date();
+var lastTime=d.getTime();
 
 //'2' represent a point in the maze, the grid index is read, if 2 give point to player and 
 //modify  the grid to '0'
@@ -148,11 +150,20 @@ whoIsRobot=1;
 
 
 //catch robot collision to halt play
-//doesn't stop game right now for testing purposes
+//checks time to trap multiple collisions, which cause incorrect
+//behaviour.
+//robot that sent in collision message is turned into monster and
+//colliding monster becomes robot.
 	socket.on('collision',function (data){
+		var g=new Date();
+		var timeLapsed=(g.getTime()-lastTime);
+		lastTime=g.getTime();
+		//console.log(timeLapsed);
+		if (timeLapsed>1000){
 		console.log("collision between"+data.id+" and "+data.other);
-		socket.broadcast.emit('stop',data);
-	socket.emit('stop',data);
+		socket.emit('robot',{robot:0,move:'yes'});
+		socket.broadcast.emit('makeRobot',data);
+	}
 	});
 
 //not functional yet

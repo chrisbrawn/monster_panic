@@ -11,16 +11,9 @@
 //use WASD keys to move robot
 
 //Outstanding items of work are:
-//#1-find a way of setting up game with one robot and n-1 enemy.
-//#2-when robot is caught by enemy, the enemy now becomes the robot.
-//#3-graphics for enemy and maze.
-//#4-score board for each player.
 //#5-general layout and design.
-//#6-reset game when all points have been removed, with the current robot
-//on the filled board.
 //#7-after deciding the roles for players, robot or enemy place the enemy away from
 //the robot at start.
-//#8-start the game over completely button.
 //#9-make tunnels work from left-right side of screen. Players should be able to go in a
 //tunnel and come out the other side.
 
@@ -51,7 +44,7 @@ loadImages(sources);
 
 window.onload = function(){
 // The URL of your web server (the port is set in app.js)
-	var url = '192.168.15.101:8080';
+	var url = '192.168.15.104:8080';
 
 //kineticjs stage
 var stage = new Kinetic.Stage({
@@ -198,7 +191,7 @@ for (var i=0;i<21;i++){
 		if (maze[i][j]=='0'){
 		
 		context.beginPath();
- context.rect((j*gridSize),(i*gridSize), gridSize, gridSize);
+ context.rect((j*gridSize)+.5,(i*gridSize)+.5, gridSize, gridSize);
       context.fillStyle = 'white';
       context.fill();
       context.lineWidth = 1;
@@ -207,7 +200,7 @@ for (var i=0;i<21;i++){
 	}
 else{
 	context.beginPath();
- context.rect((j*gridSize),(i*gridSize), gridSize, gridSize);
+ context.rect((j*gridSize)+.5,(i*gridSize)+.5, gridSize, gridSize);
       context.fillStyle = 'silver';
       context.fill();
       context.lineWidth = 1;
@@ -382,6 +375,12 @@ socket.on('robot',function(data){
 	}else{
 		playerName='monster';
 	}
+	if(data.move=='yes' && robot=='0'){
+		myRect.setX(30);
+		myRect.setY(30);
+		robotObj.setX(30);
+		robotObj.setY(30);
+	}
 	checkType();
 });
 
@@ -426,7 +425,7 @@ if  (data.name=='monster' && moveChar.getName()=='robot'){
           x: moveChar.getX(),
           y: moveChar.getY(),
           image: monsterImg,
-          animation: 'right',
+          animation: data.currentDirection,
           animations: robotAnim,
           frameRate: 7
         });
@@ -442,7 +441,7 @@ if  (data.name=='monster' && moveChar.getName()=='robot'){
           x: moveChar.getX(),
           y: moveChar.getY(),
           image: robotImg,
-          animation: 'right',
+          animation: data.currentDirection,
           animations: robotAnim,
           frameRate: 7
         }); 
@@ -452,7 +451,6 @@ if  (data.name=='monster' && moveChar.getName()=='robot'){
         charlayer.add(moveChar);
         moveChar.start(); 
 	}
-
 
 
 		moveChar.setX(data.x);
@@ -486,25 +484,25 @@ mazeClone[data.y][data.x]=0;
 		doc.keypress(function(event) {
   if (event.which == 97 )
 {
-
+	previousDirection=myDirection;
      myDirection='left';
      robotObj.setAnimation('left');
  }
     else if(event.which == 119)
     {
-
+	previousDirection=myDirection;
    	 myDirection='up';
    	 robotObj.setAnimation('up');
 }
     else if(event.which == 100)
     {
-
+    previousDirection=myDirection;
    	 myDirection='right';
    	 robotObj.setAnimation('right');
 }
     else if(event.which == 115)
     {
-
+    previousDirection=myDirection;
    	 myDirection='down';
    	 robotObj.setAnimation('down');
  }
@@ -512,6 +510,8 @@ mazeClone[data.y][data.x]=0;
 
 
 //collision detection between players.
+//if a player robot has collided with a monster, send a
+//collision message to server.
 var checkForCollisions=function(){
 	var xGrid=myRect.getX();
 	xGrid=Math.floor(xGrid/gridSize);
@@ -530,7 +530,7 @@ var checkForCollisions=function(){
 			myRect.setFill('black');
 			socket.emit('collision',{
 			'id': id,
-			'other': dataID			
+			'other': dataID,	
 			});
 		}
 	}
@@ -611,13 +611,15 @@ else if (myDirection=='up' && checkMaze('up')=='0' && xMod==0){
 		}
 	};
 
-//doesn't work yet
+//prints all scores
+//needs formatting etc.
 var printScore=function(){
 	var output;
-	output="Score: "+points+"\n";
-//	for (var i=0; i<characters.length; i++){
-//		output+=characters[i].name+"-"+characters[i].score+"\n";
-//	}
+	output="My name:"+playerName+" score:"+points+"\n";
+for (var dataID in clients){
+		var item=clients[dataID];
+		output+="name:"+item.name+" score:"+item.score+"\n";
+	}
 		$('#score').text(output);
 }
 
@@ -626,8 +628,12 @@ var printScore=function(){
 
 var	 intFunc=setInterval(function(){redraw()},50);
 
-socket.on('stop',function(data){
-//	clearInterval(intFunc);
+socket.on('makeRobot',function(data){
+	if(id==data.other){
+		robot=1;
+		playerName='robot';
+		checkType();
+	}
 });
 
 
