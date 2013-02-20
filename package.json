@@ -1,0 +1,15 @@
+{
+  "name": "monsterpanic",
+  "subdomain": "cbrawn.monster_panic",
+  "scripts": {
+    "start": "app.js"
+  },
+  "version": "0.0.0-5",
+  "engines": {
+    "node": "0.8.x"
+  },
+  "dependencies": {
+    "socket.io": "*",
+    "node-static": "*"
+  }
+}

@@ -61,7 +61,9 @@ var fileServer = new static.Server('./');
 	
 // This is the port for our web server.
 // you will need to go to http://localhost:8080 to see it
-app.listen(8080);
+//app.listen(8080);
+//uncomment below for deployment on nodejitsu
+app.listen(80);
 
 // If the URL of the socket server is opened in a browser
 function handler (request, response) {
@@ -89,11 +91,23 @@ io.sockets.on('connection', function (socket) {
 
 //start game when button pushed
 socket.on('resetGame',function(){
+	resetMaze();
 	whoIsRobot=1;
 	socket.emit('robot',{robot:1})
 	socket.broadcast.emit('robot',{robot:0})
 
 })
+
+var resetMaze=function(){
+	for (var i = 0; i < maze.length; i++)
+    mazeClone[i] = maze[i].slice();
+	socket.emit('sendMaze',{
+		'maze':mazeClone
+	});
+	console.log("resetting maze");
+
+	points=408;
+}
 
 // Start listening for mouse move events
 //also checks for dots being eaten and gives the
@@ -117,14 +131,7 @@ socket.on('resetGame',function(){
 			mazeClone[yGrid][xGrid]=0;
 			points-=1;			
 if (points==0){	
-for (var i = 0; i < maze.length; i++)
-    mazeClone[i] = maze[i].slice();
-	socket.emit('sendMaze',{
-		'maze':mazeClone
-	});
-	console.log("resetting maze");
-
-	points=408;
+resetMaze();
 }
 			}				
 		}
