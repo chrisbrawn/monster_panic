@@ -10,9 +10,13 @@
 //server side. Currently the users are only known on client side.
 
 
-// Including libraries
+// Including libraries and connection information to mongodb database
 var app = require('http').createServer(handler),
+ uriMongoLab= "mongodb://maxwell:Smart99@ds043027.mongolab.com:43027/monster-panic",
 	io = require('socket.io').listen(app),
+	mongodb = require("mongodb"),
+    mongoserver = new mongodb.Server('ds043027.mongolab.com', 43027, {auto_reconnect : true}),
+    db_connector = new mongodb.Db('monster-panic', mongoserver,{}),
 	static = require('node-static'); // for serving files
 
 //size of each square in pixels
@@ -74,11 +78,14 @@ function handler (request, response) {
 }
 
 // Delete this row if you want to see debug messages
-io.set('log level', 1);
+//io.set('log level', 1);
 
 // Listen for incoming connections from clients
 //the main loop for each client.
 //all client message passing and logic code should be in here.
+db_connector.open(function(err,db){
+	db.authenticate('maxwell','Smart99',function(err,success)
+	{
 io.sockets.on('connection', function (socket) {
 
 	//send the current state of the maze to the client
@@ -178,3 +185,9 @@ whoIsRobot=1;
 	
 	});
 });
+});
+});
+
+
+
+
