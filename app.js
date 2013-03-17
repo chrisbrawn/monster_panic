@@ -25,6 +25,7 @@ var players=0;
 //total number of points in the maze
 var points=408;
 var whoIsRobot=0;
+console.log("whoIsRobot",whoIsRobot);
 var d=new Date();
 var lastTime=d.getTime();
 
@@ -65,9 +66,9 @@ var fileServer = new static.Server('./');
 	
 // This is the port for our web server.
 // you will need to go to http://localhost:8080 to see it
-//app.listen(8080);
+app.listen(8080);
 //uncomment below for deployment on nodejitsu
-app.listen(80);
+//app.listen(80);
 
 // If the URL of the socket server is opened in a browser
 function handler (request, response) {
@@ -87,6 +88,7 @@ db_connector.open(function(err,db){
 	db.authenticate('maxwell','Smart99',function(err,success)
 	{
 io.sockets.on('connection', function (socket) {
+	players+=1;
 
 	//send the current state of the maze to the client
 	socket.emit('sendMaze',{
@@ -142,6 +144,15 @@ resetMaze();
 }
 			}				
 		}
+		for(ident in clients){
+			if($.now() - clients[ident].updated > 5000){
+				characters[ident].remove();
+				delete clients[ident];
+				delete characters[ident];
+				players-=1;
+				//not functional yet			
+			}
+		}
 		// This line sends the event (broadcasts it)
 		// to everyone except the originating client.
 		socket.broadcast.emit('xymoving', data);
@@ -180,7 +191,7 @@ whoIsRobot=1;
 	}
 	});
 
-//not functional yet
+//resets board when everyone leaves the game
 	socket.on('remove',function(){
 	
 	});
