@@ -79,7 +79,7 @@ function handler (request, response) {
 }
 
 // Delete this row if you want to see debug messages
-//io.set('log level', 1);
+io.set('log level', 1);
 
 // Listen for incoming connections from clients
 //the main loop for each client.
@@ -87,13 +87,26 @@ function handler (request, response) {
 db_connector.open(function(err,db){
 	db.authenticate('maxwell','Smart99',function(err,success)
 	{
+
+
 io.sockets.on('connection', function (socket) {
 	players+=1;
-
+	//console.log("connect who is robot",whoIsRobot);
+	//console.log("players",players);
 	//send the current state of the maze to the client
 	socket.emit('sendMaze',{
 		'maze':mazeClone
 	});
+
+	socket.on('disconnect', function () {
+   // console.log('disconnected ');
+    players--;
+   	if (players==0){
+   		whoIsRobot=0;
+   		resetMaze();
+   	}
+});
+
 
 
 
@@ -134,7 +147,7 @@ var resetMaze=function(){
 			if (mazeClone[yGrid][xGrid]==2){
 				socket.emit('point',{'x':xGrid,
 					'y':yGrid});
-				console.log("giving point to "+data.id);
+		//		console.log("giving point to "+data.id);
 			socket.broadcast.emit('removePoint',{'x':xGrid,
 					'y':yGrid});
 			mazeClone[yGrid][xGrid]=0;
@@ -144,15 +157,7 @@ resetMaze();
 }
 			}				
 		}
-		for(ident in clients){
-			if($.now() - clients[ident].updated > 5000){
-				characters[ident].remove();
-				delete clients[ident];
-				delete characters[ident];
-				players-=1;
-				//not functional yet			
-			}
-		}
+	
 		// This line sends the event (broadcasts it)
 		// to everyone except the originating client.
 		socket.broadcast.emit('xymoving', data);
@@ -184,8 +189,8 @@ whoIsRobot=1;
 		var timeLapsed=(g.getTime()-lastTime);
 		lastTime=g.getTime();
 		//console.log(timeLapsed);
-		if (timeLapsed>1000){
-		console.log("collision between"+data.id+" and "+data.other);
+		if (timeLapsed>2000){
+		//console.log("collision between"+data.id+" and "+data.other);
 		socket.emit('robot',{robot:0,move:'yes'});
 		socket.broadcast.emit('makeRobot',data);
 	}

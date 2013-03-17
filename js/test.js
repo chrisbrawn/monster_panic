@@ -44,9 +44,9 @@ loadImages(sources);
 
 window.onload = function(){
 // The URL of your web server (the port is set in app.js)
-	var url = 'cbrawn.monster_panic.jit.su:80';
+//	var url = 'cbrawn.monster_panic.jit.su:80';
 	//uncomment below with your local ip to run locally
-//	var url = '192.168.15.101:8080';
+	var url = '192.168.15.101:8080';
 
 //kineticjs stage
 var stage = new Kinetic.Stage({
@@ -377,12 +377,12 @@ socket.on('robot',function(data){
 	}else{
 		playerName='monster';
 	}
-	if(data.move=='yes' && robot=='0'){
-		myRect.setX(30);
-		myRect.setY(30);
-		robotObj.setX(30);
-		robotObj.setY(30);
-	}
+	//if(data.move=='yes' && robot=='0'){
+	//	myRect.setX(30);
+	//	myRect.setY(30);
+	//	robotObj.setX(30);
+	//	robotObj.setY(30);
+	//}
 	checkType();
 });
 
