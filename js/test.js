@@ -46,7 +46,7 @@ window.onload = function(){
 // The URL of your web server (the port is set in app.js)
 //	var url = 'cbrawn.monster_panic.jit.su:80';
 	//uncomment below with your local ip to run locally
-	var url = '192.168.15.101:8080';
+	var url = '192.168.15.105:8080';
 
 //kineticjs stage
 var stage = new Kinetic.Stage({
@@ -466,7 +466,7 @@ if  (data.name=='monster' && moveChar.getName()=='robot'){
 //get point from server
 socket.on('point',function(data){
 	eatSnd.play();
-	points+=1;
+	points+=data.players*1;
 	mazeClone[data.y][data.x]=0;
 });
 

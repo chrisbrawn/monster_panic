@@ -146,7 +146,7 @@ var resetMaze=function(){
 				//check if point available,if so send it to player
 			if (mazeClone[yGrid][xGrid]==2){
 				socket.emit('point',{'x':xGrid,
-					'y':yGrid});
+					'y':yGrid,'players':players});
 		//		console.log("giving point to "+data.id);
 			socket.broadcast.emit('removePoint',{'x':xGrid,
 					'y':yGrid});
