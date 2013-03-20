@@ -48,12 +48,12 @@ loadImages(sources);
 var canvas = document.getElementById('drawCanvas');
 var context = canvas.getContext('2d');
 
-$('#login').click(function() {
-	$('#login').toggle();
+$('#start').click(function() {
+	$('#login').fadeOut();
 	// The URL of your web server (the port is set in app.js)
-	//	var url = 'cbrawn.monster_panic.jit.su:80';
+	//var url = 'cbrawn.monster_panic.jit.su:80';
 	//uncomment below with your local ip to run locally
-	var url = '192.168.15.100:8080';
+	var url = '192.168.15.107:8080';
 
 	//kineticjs stage
 	var stage = new Kinetic.Stage({

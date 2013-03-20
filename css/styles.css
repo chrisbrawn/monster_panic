@@ -5,7 +5,90 @@
 	z-index: 10;
 	padding-left: 200px;
 	padding-top: 50px;
+	border-top: 1px;
+	border-left: 1px;
+	border-right: 1px;
+	border-bottom: 1px;
+	border-style: solid;
+	border-color: black;
+	margin-top: 28px;
+	margin-bottom:100px;
 }
+
+#start{
+	font-family: 'Share Tech Mono', sans-serif;
+	font-size: 50px;
+	position:absolute;
+	top:20;
+	left:20;
+	margin-top: -270px;
+	margin-left: 500px;
+	padding-top: 50px;
+	border-top: 1px;
+	border-left: 1px;
+	border-right: 1px;
+	border-bottom: 1px;
+	border-style: solid;
+	border-color: black;
+}
+
+#topScore{
+	
+	position:absolute;
+	top:20;
+	left:20;
+	margin-top: -875px;
+	margin-left: -90px;
+	padding-top: 50px;
+}
+#topScore p{
+	font-family: 'Share Tech Mono', sans-serif;
+	font-size: 40px;
+}
+
+#question{
+	font-family: 'Share Tech Mono', sans-serif;
+	font-size: 50px;
+	position:absolute;
+	top:20;
+	left:20;
+	margin-top: -270px;
+	margin-left: -140px;
+	padding-top: 50px;
+	border-top: 1px;
+	border-left: 1px;
+	border-right: 1px;
+	border-bottom: 1px;
+	border-style: solid;
+	border-color: black;
+}
+
+#question:hover{
+	background-color: #808080;
+}
+
+#start:hover{
+   background-color:#FF0000;
+}
+
+#name {
+	font-family: 'Share Tech Mono', sans-serif;
+	font-size: 50px;
+	position:absolute;
+	top:20;
+	left:20;
+	margin-top: -350px;
+	margin-left: -80px;
+}
+
+#namebox {
+	font-family: 'Share Tech Mono', sans-serif;
+	font-size: 40px;
+	position:absolute;
+	top:20;
+	left:20;
+}
+
 p{
 	font-family: 'Share Tech Mono', sans-serif;
 	font-size: 30px;
