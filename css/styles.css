@@ -1,5 +1,21 @@
+
+p{
+	font-family: 'Share Tech Mono', sans-serif;
+	font-size: 30px;
+	margin-bottom: -37px;
+}
 #drawCanvas{
 	position:absolute;
 	top:20;
 	left:20;
+}
+
+#score{ 
+	font-family: 'Share Tech Mono', sans-serif;
+	font-size: 30px;
+	position:absolute;
+	top:630;
+	left:150;
+	margin-left: 5em;
+	margin-top: 1em;
 }

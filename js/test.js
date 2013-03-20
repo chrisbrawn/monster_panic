@@ -21,7 +21,9 @@
 var imagesLoaded={};
 var sources = {
 	robot:'images/robot.png',
-	monster:'images/monster.png'
+	monster:'images/monster.png',
+	robotid:'images/robot-id.png',
+	monsterid:'images/monster-id.png'
 }
 
   function loadImages(sources) {
@@ -42,11 +44,14 @@ var sources = {
 
 loadImages(sources);
 
+var canvas = document.getElementById('drawCanvas');
+var context = canvas.getContext('2d');
+
 window.onload = function(){
 // The URL of your web server (the port is set in app.js)
 //	var url = 'cbrawn.monster_panic.jit.su:80';
 	//uncomment below with your local ip to run locally
-	var url = '192.168.15.105:8080';
+	var url = '192.168.15.100:8080';
 
 //kineticjs stage
 var stage = new Kinetic.Stage({
@@ -162,6 +167,7 @@ var robotObj;
         //start event loop
         charlayer.add(robotObj);
         robotObj.start();
+        context.drawImage(imagesLoaded.monsterid,gridSize,(21.7*gridSize));
         playerName='monster';
     }
 }
@@ -186,8 +192,6 @@ var myRect = new Kinetic.Rect({
 //draw maze to canvas, because it is much faster than kineticjs.
 //done only at start
 var bgMaze=function(){
-	 var canvas = document.getElementById('drawCanvas');
-      var context = canvas.getContext('2d');
 for (var i=0;i<21;i++){
 	for (var j=0;j<41;j++){
 		if (maze[i][j]=='0'){
@@ -211,6 +215,12 @@ else{
 }
 }
 }
+context.rect(.5,(21*gridSize)+.5, (41*gridSize), (5*gridSize));
+ context.fillStyle = 'silver';
+      context.fill();
+      context.lineWidth = 1;
+      context.strokeStyle = 'grey';
+      context.stroke();
 }
 //create bgMaze
 bgMaze();
@@ -230,18 +240,9 @@ var addPlayer=function(){
 addPlayer();
 
 
-//tries to reset players to new robot, this user who pushed the button
-//and gives out monster id's to everyone else.
-//doesn't work perfectly yet.
-$("#reset").on("click",function(){
-	socket.emit('resetGame',{});
-});
-
 
 //draw the points, updated on each redraw.
 var bgPoints=function(){
- var canvas = document.getElementById('drawCanvas');
-      var context = canvas.getContext('2d');
 for (var i=0;i<21;i++){
 	for (var j=0;j<41;j++){
 		if (mazeClone[i][j]=='2'){
@@ -618,10 +619,6 @@ else if (myDirection=='up' && checkMaze('up')=='0' && xMod==0){
 var printScore=function(){
 	var output;
 	output="My name:"+playerName+" score:"+points+"\n";
-for (var dataID in clients){
-		var item=clients[dataID];
-		output+="name:"+item.name+" score:"+item.score+"\n";
-	}
 		$('#score').text(output);
 }
 
@@ -658,6 +655,7 @@ var checkType=function(){
         charlayer.add(robotObj);
 
         robotObj.start();
+        context.drawImage(imagesLoaded.monsterid,gridSize,(21.7*gridSize));
 	}else if 
 	(robot=='1' && robotObj.getName()=='monster'){
 		var blob = new Kinetic.Sprite({
@@ -672,7 +670,7 @@ var checkType=function(){
         robotObj.remove();
         robotObj=blob;
         charlayer.add(robotObj);
-
+         context.drawImage(imagesLoaded.robotid,gridSize,(21.7*gridSize));
         robotObj.start();
 	}
 }
