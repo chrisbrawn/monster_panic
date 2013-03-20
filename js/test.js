@@ -48,7 +48,8 @@ loadImages(sources);
 var canvas = document.getElementById('drawCanvas');
 var context = canvas.getContext('2d');
 
-window.onload = function() {
+$('#login').click(function() {
+	$('#login').toggle();
 	// The URL of your web server (the port is set in app.js)
 	//	var url = 'cbrawn.monster_panic.jit.su:80';
 	//uncomment below with your local ip to run locally
@@ -702,4 +703,4 @@ window.onload = function() {
 		}
 
 	}
-}
+});
