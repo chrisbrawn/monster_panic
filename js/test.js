@@ -48,6 +48,7 @@ loadImages(sources);
 var canvas = document.getElementById('drawCanvas');
 var context = canvas.getContext('2d');
 
+
 $('#start').click(function() {
 	$('#login').fadeOut();
 	// The URL of your web server (the port is set in app.js)
@@ -66,14 +67,6 @@ $('#start').click(function() {
 	var eatSnd = new Audio("/sound/Ting.wav"); // buffers automatically when created
 
 
-	//generate random hex value for colour
-	var randomHexGenerator = function() {
-		return '#' + '0123456789abcdef'.split('').map(function(v, i, a) {
-			return i > 5 ? null : a[Math.floor(Math.random() * 16)]
-		}).join('')
-	};
-
-
 	//layer for our players
 	var charlayer = new Kinetic.Layer();
 	stage.add(charlayer);
@@ -84,6 +77,8 @@ $('#start').click(function() {
 	var points = 0;
 	//need way to assign personal name at start for each person
 	var playerName = 'monster';
+	//keep the colour chosen for monster to apply to icon
+	var monster_hue;
 	//how many players
 	var players = 1;
 	var gridSize = 30;
@@ -159,9 +154,9 @@ $('#start').click(function() {
 			robotObj.start();
 			playerName = 'robot';
 		} else {
-			var hue = 180 * Math.random();
+			monster_hue = 180 * Math.random();
 			var newImg = Pixastic.process(imagesLoaded.monster, "hsl", {
-				hue: hue,
+				hue: monster_hue,
 				saturation: 0,
 				lightness: 0
 			});
@@ -178,7 +173,12 @@ $('#start').click(function() {
 			//start event loop
 			charlayer.add(robotObj);
 			robotObj.start();
-			context.drawImage(imagesLoaded.monsterid, gridSize, (21.7 * gridSize));
+			var newMonst = Pixastic.process(imagesLoaded.monsterid, "hsl", {
+				hue: monster_hue,
+				saturation: 0,
+				lightness: 0
+			});
+			context.drawImage(newMonst, gridSize, (21.7 * gridSize));
 			playerName = 'monster';
 		}
 	}
@@ -628,9 +628,9 @@ $('#start').click(function() {
 	//if robot=0 the monster
 	var checkType = function() {
 		if (robot == '0' && robotObj.getName() == 'robot') {
-			var hue = 180 * Math.random();
+			monster_hue = 180 * Math.random();
 			var newImg = Pixastic.process(imagesLoaded.monster, "hsl", {
-				hue: hue,
+				hue: monster_hue,
 				saturation: 0,
 				lightness: 0
 			});
@@ -648,7 +648,12 @@ $('#start').click(function() {
 			charlayer.add(robotObj);
 
 			robotObj.start();
-			context.drawImage(imagesLoaded.monsterid, gridSize, (21.7 * gridSize));
+			var newMonst = Pixastic.process(imagesLoaded.monsterid, "hsl", {
+				hue: monster_hue,
+				saturation: 0,
+				lightness: 0
+			});
+			context.drawImage(newMonst, gridSize, (21.7 * gridSize));
 		} else if (robot == '1' && robotObj.getName() == 'monster') {
 			var blob = new Kinetic.Sprite({
 				name: 'robot',
