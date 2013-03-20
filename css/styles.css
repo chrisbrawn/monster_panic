@@ -5,12 +5,7 @@
 	z-index: 10;
 	padding-left: 200px;
 	padding-top: 50px;
-	border-top: 1px;
-	border-left: 1px;
-	border-right: 1px;
-	border-bottom: 1px;
-	border-style: solid;
-	border-color: black;
+	border: 1px solid black;
 	margin-top: 28px;
 	margin-bottom:100px;
 }
@@ -24,12 +19,7 @@
 	margin-top: -270px;
 	margin-left: 500px;
 	padding-top: 50px;
-	border-top: 1px;
-	border-left: 1px;
-	border-right: 1px;
-	border-bottom: 1px;
-	border-style: solid;
-	border-color: black;
+	border: 1px solid black;
 }
 
 #topScore{
@@ -38,13 +28,31 @@
 	top:20;
 	left:20;
 	margin-top: -875px;
-	margin-left: -90px;
+	margin-left: 0px;
 	padding-top: 50px;
 }
 #topScore p{
 	font-family: 'Share Tech Mono', sans-serif;
-	font-size: 40px;
+	font-size: 30px;
 }
+
+#topScore table{
+		font-family: 'Share Tech Mono', sans-serif;
+	font-size: 30px;
+	margin-top: 30px;
+	margin-left: 0px;
+		border-top: 1px;
+	border: 1px solid black;
+	width:500px;
+	height:350px;
+	}
+#topScore th,td,tr{
+	border: 1px solid black;
+	height: 30px;
+	max-width: 100px;
+	max-height:30px;
+}
+
 
 #question{
 	font-family: 'Share Tech Mono', sans-serif;
@@ -55,12 +63,7 @@
 	margin-top: -270px;
 	margin-left: -140px;
 	padding-top: 50px;
-	border-top: 1px;
-	border-left: 1px;
-	border-right: 1px;
-	border-bottom: 1px;
-	border-style: solid;
-	border-color: black;
+	border: 1px solid black;
 }
 
 #question:hover{
@@ -78,7 +81,7 @@
 	top:20;
 	left:20;
 	margin-top: -350px;
-	margin-left: -80px;
+	margin-left: 00px;
 }
 
 #namebox {
