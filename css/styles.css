@@ -41,12 +41,13 @@
 	top:20;
 	left:20;
 	margin-top: -875px;
-	margin-left: 120px;
-	padding-top: 50px;
+	margin-left: 00px;
+	padding-top: 100px;
 }
 #topScore p{
 	font-family: 'Share Tech Mono', sans-serif;
 	font-size: 30px;
+	text-align:center;
 }
 
 #scoreTable{
@@ -98,7 +99,7 @@
 	position:absolute;
 	top:20;
 	left:20;
-	margin-top: -360px;
+	margin-top: -300px;
 	margin-left: 150px;
 }
 

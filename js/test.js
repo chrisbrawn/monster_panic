@@ -57,6 +57,12 @@ loadImages(sources);
 //})
 
 $('#start').click(function() {
+//sound for eating dot
+	var eatSnd = new Audio("/sound/Ting.wav"); // buffers automatically when created
+	var hitSnd = new Audio("/sound/hit_small.wav");
+	var startSnd = new Audio("/sound/start.wav");
+
+	startSnd.play();
 
 	// The URL of your web server (the port is set in app.js)
 	//var url = 'cbrawn.monster_panic.jit.su:80';
@@ -97,8 +103,7 @@ $('#start').click(function() {
 		height: 650
 	});
 
-	//sound for eating dot
-	var eatSnd = new Audio("/sound/Ting.wav"); // buffers automatically when created
+
 
 
 	//layer for our players
@@ -575,6 +580,7 @@ $('#start').click(function() {
 				charGridY = Math.floor(charGridY / gridSize);
 				if (charGridY === yGrid && charGridX === xGrid && robot == 1) {
 					myRect.setFill('black');
+					hitSnd.play();
 					socket.emit('collision', {
 						'id': id,
 						'other': dataID,
