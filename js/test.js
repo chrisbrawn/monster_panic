@@ -46,12 +46,6 @@ var sources = {
 
 loadImages(sources);
 
-var canvas = document.getElementById('drawCanvas');
-var context = canvas.getContext('2d');
-
-//Ask for the top players
-//socket.emit('getTopPlayer',function(){
-//});
 
 //will put html table on screen
 //socket.on('topScores',function(data){
@@ -63,30 +57,37 @@ var context = canvas.getContext('2d');
 //})
 
 $('#start').click(function() {
+
 	// The URL of your web server (the port is set in app.js)
 	//var url = 'cbrawn.monster_panic.jit.su:80';
 	//uncomment below with your local ip to run locally
 
 	var url = '192.168.15.100:8080';
 	var socket = io.connect(url);
-
-
-	//THESE SHOULD NOT BE HERE IN THE END BUT YOU CAN BUILD THEM HERE
 	//Ask for the top players
 	socket.emit('getTopPlayer', function() {});
 
+
+	var canvas = document.getElementById('drawCanvas');
+	var context = canvas.getContext('2d');
+
+	//THESE SHOULD NOT BE HERE IN THE END BUT YOU CAN BUILD THEM HERE
+	//Ask for the top players
+	//	socket.emit('getTopPlayer', function() {});
+
 	//will put html table on screen
-	socket.on('topScores', function(data) {
-		//build html table rows <tr> for each of the six elements
-		//ie <tr><td>Chris</td><td>100202</td><td>5</td></tr>
-		//remove the dummy data after the <th>
-		//Then use scoreTable in index.html to insert this block of html
-		//use innerHtml
-	});
+	//	socket.on('topScores', function(data) {
+	//build html table rows <tr> for each of the six elements
+	//ie <tr><td>Chris</td><td>100202</td><td>5</td></tr>
+	//remove the dummy data after the <th>
+	//Then use scoreTable in index.html to insert this block of html
+	//use innerHtml
+	//	});
 
 
 	$('#login').fadeOut();
 	$('#exit').toggle();
+	$('#scoreTable').toggle();
 
 
 	//kineticjs stage
@@ -156,12 +157,15 @@ $('#start').click(function() {
 	];
 	//will need to update server if player becomes robot
 	playerLoginName = $('#namebox').val();
-	console.log("name:" + playerLoginName);
-	socket.emit('newPlayer', {
-		name: playerLoginName,
-		score: '0',
-		robots: '0'
-	});
+
+	if (playerLoginName != 'enter your name') {
+		console.log("name:" + playerLoginName);
+		socket.emit('newPlayer', {
+			name: playerLoginName,
+			score: '0',
+			robots: '0'
+		});
+	};
 	//clone the point layout,will be sent from server.
 	var mazeClone;
 
@@ -226,9 +230,14 @@ $('#start').click(function() {
 	//exit game when player hits exit button on game screen
 	$('#exit').click(function() {
 		//send message to server that player is leaving
+		clearInterval(intFunc);
+		robotObj = null;
+		charlayer.clear();
+		stage.clear();
 		context.clearRect(0, 0, canvas.width, canvas.height);
 		$('#login').toggle();
 		$('#exit').toggle();
+		$('#scoreTable').toggle();
 	});
 
 
@@ -649,13 +658,13 @@ $('#start').click(function() {
 		$('#score').text(output);
 	}
 
-	//on start message play game
 
-
+	//interval setting for game loop
 	var intFunc = setInterval(function() {
 		redraw()
 	}, 50);
 
+	//make this player the robot
 	socket.on('makeRobot', function(data) {
 		if (id == data.other) {
 			robot = 1;
@@ -735,17 +744,18 @@ $('#start').click(function() {
 		printScore();
 		//handles people dropping off connection
 		//sends message to server to decrement number of players
+		//Sends message if player removed was robot
 		for (ident in clients) {
-			if ($.now() - clients[ident].updated > 5000) {
+			if ($.now() - clients[ident].updated > 2000) {
+				if (clients[ident].robot == 1) {
+					console.log("robot?" + clients[ident].robot);
+					socket.emit('robotRemoved', {});
+				}
 				characters[ident].remove();
 				delete clients[ident];
 				delete characters[ident];
 				players -= 1;
-				//not functional yet
-				socket.emit('remove', {
-					'id': id,
-					'name': playerName
-				});
+
 			}
 		}
 

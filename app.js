@@ -95,7 +95,7 @@ db_connector.open(function(err, db) {
 		//tyler--- find the right collection within the db called players-------
 		//also show some objects inside
 		var collection = new mongodb.Collection(db, 'players');
-		
+
 		//------------------------------------------------------------------------
 
 
@@ -124,17 +124,17 @@ db_connector.open(function(err, db) {
 				collection.insert(data, {
 					safe: true
 				}, function(err, objects) {
-				
+
 				});
 			});
 
 			//need to make it get the top 6 scores only
-			socket.on('getTopPlayers',function(){
-					collection.find({}, {
-						limit: 6
-					}).toArray(function(err, docs) {
-						socket.emit('topScores',docs);
-					});
+			socket.on('getTopPlayers', function() {
+				collection.find({}, {
+					limit: 6
+				}).toArray(function(err, docs) {
+					socket.emit('topScores', docs);
+				});
 			});
 
 
@@ -234,8 +234,10 @@ db_connector.open(function(err, db) {
 				}
 			});
 
-			//resets board when everyone leaves the game
-			socket.on('remove', function() {
+			//Resets the whoIsrobot value, Then a new robot will be the next player
+			socket.on('robotRemoved', function() {
+				console.log("robot removed")
+				whoIsRobot = 0;
 
 			});
 		});

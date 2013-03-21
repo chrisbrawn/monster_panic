@@ -1,5 +1,5 @@
 #login{
-	position:absolute;
+	position:absolute; 
 	top:20;
 	left:20;
 	padding-top: 50px;
@@ -49,19 +49,25 @@
 	font-size: 30px;
 }
 
-#topScore table{
+#scoreTable{
+	display:none;
+	top:660px;
+	left:850px;
+	position:absolute;
+	z-index: 200;
 		font-family: 'Share Tech Mono', sans-serif;
-	font-size: 30px;
+	font-size: 10px;
 	margin-top: 30px;
 	margin-left: 0px;
 		border-top: 1px;
 	border: 1px solid black;
-	width:500px;
-	height:350px;
+	width:200px;
+	height:150px;
 	}
-#topScore th,td,tr{
+#scoreTable th,td,tr{
+	z-index: 20;
 	border: 1px solid black;
-	height: 30px;
+	height: 10px;
 	max-width: 100px;
 	max-height:;
 }
