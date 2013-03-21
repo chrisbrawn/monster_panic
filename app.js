@@ -95,11 +95,8 @@ db_connector.open(function(err, db) {
 		//tyler--- find the right collection within the db called players-------
 		//also show some objects inside
 		var collection = new mongodb.Collection(db, 'players');
-		collection.find({}, {limit:10}).toArray(function(err, docs) {
-        console.dir(docs);
-      });
+		
 		//------------------------------------------------------------------------
-
 
 
 		io.sockets.on('connection', function(socket) {
@@ -121,14 +118,23 @@ db_connector.open(function(err, db) {
 				}
 			});
 
-
-			socket.on('newPlayer', function(data){
-				console.log('data received: '+data);
+			//adds new player into the db
+			socket.on('newPlayer', function(data) {
+				console.log('data received: ' + data);
+				collection.insert(data, {
+					safe: true
+				}, function(err, objects) {
 				
-				collection.insert(data, {safe: true}, function(err, objects){
-				collection.find({}, {limit:10}).toArray(function(err, docs) {console.dir(docs);
 				});
 			});
+
+			//need to make it get the top 6 scores only
+			socket.on('getTopPlayers',function(){
+					collection.find({}, {
+						limit: 6
+					}).toArray(function(err, docs) {
+						socket.emit('topScores',docs);
+					});
 			});
 
 
