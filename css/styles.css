@@ -17,8 +17,23 @@
 	margin-top: -270px;
 	margin-left: 575px;
 	padding-top: 50px;
-	
 }
+
+#exit{
+	position:absolute;
+	font-family: 'Share Tech Mono', sans-serif;
+	font-size: 40px;
+	margin-top: 720px;
+	margin-left: 1075px;
+	z-index: 100;
+	display:none;
+}
+
+#exit:hover{
+   background-color:#FF0000;
+}
+
+
 
 #topScore{
 	

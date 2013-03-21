@@ -92,6 +92,15 @@ io.set('log level', 1);
 db_connector.open(function(err, db) {
 	db.authenticate('maxwell', 'Smart99', function(err, success) {
 
+		//tyler--- find the right collection within the db called players-------
+		//also show some objects inside
+		var collection = new mongodb.Collection(db, 'players');
+		collection.find({}, {limit:10}).toArray(function(err, docs) {
+        console.dir(docs);
+      });
+		//------------------------------------------------------------------------
+
+
 
 		io.sockets.on('connection', function(socket) {
 			players += 1;
@@ -102,6 +111,7 @@ db_connector.open(function(err, db) {
 				'maze': mazeClone
 			});
 
+
 			socket.on('disconnect', function() {
 				// console.log('disconnected ');
 				players--;
@@ -109,6 +119,16 @@ db_connector.open(function(err, db) {
 					whoIsRobot = 0;
 					resetMaze();
 				}
+			});
+
+
+			socket.on('newPlayer', function(data){
+				console.log('data received: '+data);
+				
+				collection.insert(data, {safe: true}, function(err, objects){
+				collection.find({}, {limit:10}).toArray(function(err, docs) {console.dir(docs);
+				});
+			});
 			});
 
 

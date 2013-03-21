@@ -50,7 +50,9 @@ var context = canvas.getContext('2d');
 
 
 $('#start').click(function() {
+
 	$('#login').fadeOut();
+	$('#exit').toggle();
 	// The URL of your web server (the port is set in app.js)
 	//var url = 'cbrawn.monster_panic.jit.su:80';
 	//uncomment below with your local ip to run locally
@@ -77,6 +79,7 @@ $('#start').click(function() {
 	var points = 0;
 	//need way to assign personal name at start for each person
 	var playerName = 'monster';
+	var playerLoginName='';
 	//keep the colour chosen for monster to apply to icon
 	var monster_hue;
 	//how many players
@@ -120,8 +123,10 @@ $('#start').click(function() {
 		[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
 		[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 	];
-
-
+	//will need to update server if player becomes robot
+	playerLoginName= $('#namebox').val();
+//console.log("name:"+playerLoginName);
+	socket.emit('newPlayer', {name:playerLoginName,score:'0',robots:'0'});
 	//clone the point layout,will be sent from server.
 	var mazeClone;
 
@@ -182,6 +187,14 @@ $('#start').click(function() {
 			playerName = 'monster';
 		}
 	}
+
+//exit game when player hits exit button on game screen
+	$('#exit').click(function(){
+		//send message to server that player is leaving
+		context.clearRect(0, 0, canvas.width, canvas.height);
+		$('#login').toggle();
+		$('#exit').toggle();
+	});
 
 
 	//our bounding box object
@@ -373,12 +386,6 @@ $('#start').click(function() {
 		} else {
 			playerName = 'monster';
 		}
-		//if(data.move=='yes' && robot=='0'){
-		//	myRect.setX(30);
-		//	myRect.setY(30);
-		//	robotObj.setX(30);
-		//	robotObj.setY(30);
-		//}
 		checkType();
 	});
 
@@ -603,7 +610,7 @@ $('#start').click(function() {
 	//needs formatting etc.
 	var printScore = function() {
 		var output;
-		output = "My name:" + playerName + " score:" + points + "\n";
+		output = "Player:" + playerLoginName + " score:" + points + "\n";
 		$('#score').text(output);
 	}
 
