@@ -93,15 +93,28 @@ db_connector.open(function(err, db) {
 	db.authenticate('maxwell', 'Smart99', function(err, success) {
 
 		var collection = new mongodb.Collection(db, 'players');
+		var scores;
 
+		//On connection to client
 		io.sockets.on('connection', function(socket) {
-			players += 1;
-			//console.log("connect who is robot",whoIsRobot);
-			//console.log("players",players);
-			//send the current state of the maze to the client
-			socket.emit('sendMaze', {
-				'maze': mazeClone
+
+			collection.find({}, {
+				limit: 10
+			}).toArray(function(err, docs) {
+				scores = docs;
+				//   console.dir(docs);
 			});
+			players += 1;
+
+			//must wait for db, else will send a null score array
+			setTimeout(function() {
+				console.dir(scores);
+				socket.emit('sendMaze', {
+					'maze': mazeClone,
+					'scores': scores
+				});
+			}, (1 * 500));
+
 
 
 			socket.on('disconnect', function() {

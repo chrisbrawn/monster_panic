@@ -530,8 +530,11 @@ $('#start').click(function() {
 	});
 
 	//make a copy of the maze sent from server
+	//also contains the scores data
+	//will call function to insert score value on screen
 	socket.on('sendMaze', function(data) {
 		mazeClone = data.maze;
+		console.dir(data.scores)
 	});
 	//set timeframe for update
 	var lastEmit = $.now();
