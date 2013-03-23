@@ -99,8 +99,8 @@ db_connector.open(function(err, db) {
 		io.sockets.on('connection', function(socket) {
 
 			collection.find({}, {
-				limit: 10
-			}).toArray(function(err, docs) {
+				limit: 6
+			}).sort({'score': -1}).toArray(function(err, docs) {
 				scores = docs;
 				//   console.dir(docs);
 			});
@@ -108,7 +108,7 @@ db_connector.open(function(err, db) {
 
 			//must wait for db, else will send a null score array
 			setTimeout(function() {
-				console.dir(scores);
+			//	console.dir(scores);
 				socket.emit('sendMaze', {
 					'maze': mazeClone,
 					'scores': scores
@@ -133,15 +133,6 @@ db_connector.open(function(err, db) {
 					safe: true
 				}, function(err, objects) {
 
-				});
-			});
-
-			//need to make it get the top 6 scores only
-			socket.on('getTopPlayers', function() {
-				collection.find({}, {
-					limit: 6
-				}).toArray(function(err, docs) {
-					socket.emit('topScores', docs);
 				});
 			});
 
@@ -194,6 +185,10 @@ db_connector.open(function(err, db) {
 							'x': xGrid,
 							'y': yGrid
 						});
+						var temp_score=data.score+1;
+						//console.log(data.playerLoginName+":"+temp_score);
+						//insert new player score into db
+						collection.update({name:data.playerLoginName},{$set: {score:temp_score}});
 						mazeClone[yGrid][xGrid] = 0;
 						points -= 1;
 						if (points == 0) {

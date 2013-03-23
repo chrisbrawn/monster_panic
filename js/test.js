@@ -47,9 +47,9 @@ var sources = {
 loadImages(sources);
 
 //sound for eating dot,collisions and starting
-var eatSnd = new Audio("/sound/Ting.wav"); 
-	var hitSnd = new Audio("/sound/hit_small.wav");
-	var startSnd = new Audio("/sound/start.wav");
+var eatSnd = new Audio("/sound/Ting.wav");
+var hitSnd = new Audio("/sound/hit_small.wav");
+var startSnd = new Audio("/sound/start.wav");
 
 
 //will put html table on screen
@@ -63,7 +63,7 @@ var eatSnd = new Audio("/sound/Ting.wav");
 
 $('#start').click(function() {
 
-	
+
 	startSnd.play();
 
 	// The URL of your web server (the port is set in app.js)
@@ -104,7 +104,6 @@ $('#start').click(function() {
 		width: 1260,
 		height: 650
 	});
-
 
 
 
@@ -166,11 +165,11 @@ $('#start').click(function() {
 	playerLoginName = $('#namebox').val();
 
 	if (playerLoginName != 'enter your name') {
-		console.log("name:" + playerLoginName);
+	//	console.log("name:" + playerLoginName);
 		socket.emit('newPlayer', {
 			name: playerLoginName,
-			score: '0',
-			robots: '0'
+			score: 0,
+			robots: 0
 		});
 	};
 	//clone the point layout,will be sent from server.
@@ -534,8 +533,17 @@ $('#start').click(function() {
 	//will call function to insert score value on screen
 	socket.on('sendMaze', function(data) {
 		mazeClone = data.maze;
-		console.dir(data.scores)
+		var scored = data.scores;
+		console.log(scored);
+		var string = "<tr><th>Name</th><th>Score</th><th>Robots</th></tr>";
+		for (var i = 0; i < 6; i++) {
+			string += "<tr><td>" + scored[i].name + "</td><td>" + scored[i].score + "</td><td>" + scored[i].robots + "</td></tr>";
+
+		}
+		document.getElementById('scoreTable').innerHTML = string;
+
 	});
+	//	console.dir(data.scores)
 	//set timeframe for update
 	var lastEmit = $.now();
 
@@ -745,6 +753,7 @@ $('#start').click(function() {
 			'id': id,
 			'score': points,
 			'name': playerName,
+			'playerLoginName':playerLoginName,
 			'currentDirection': myDirection,
 			'previousDirection': previousDirection,
 			'robot': robot
