@@ -2,12 +2,6 @@
 //Server side application for game, loads files to clients and passes routes messages between
 //clients. Also arbitrates scoring by issuing out the points.
 //Outstanding items of work are:
-//1#-need a way to tell the players who is a robot and who is an enemy.
-//need to reset the screen and game players when the points have been given out. ie, the
-//robot has eaten all the dots, so we need to fill the maze back up with dots and start the game again
-// with the current robot player.
-//2#-manage the users, if a user stops playing we need to remove them from the group on the 
-//server side. Currently the users are only known on client side.
 
 
 // Including libraries and connection information to mongodb database
@@ -25,7 +19,7 @@ var app = require('http').createServer(handler),
 var gridSize = 30;
 var players = 0;
 //total number of points in the maze
-var points = 408;
+var points = 404;
 //Has robot player been allocated? 1-yes
 var whoIsRobot = 0;
 var d = new Date();

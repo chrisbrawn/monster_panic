@@ -69,34 +69,19 @@ $('#start').click(function() {
 	// The URL of your web server (the port is set in app.js)
 	//var url = 'cbrawn.monster_panic.jit.su:80';
 	//uncomment below with your local ip to run locally
-
 	var url = '192.168.15.100:8080';
+
 	var socket = io.connect(url);
 	//Ask for the top players
-	socket.emit('getTopPlayer', function() {});
 
 
 	var canvas = document.getElementById('drawCanvas');
 	var context = canvas.getContext('2d');
 
-	//THESE SHOULD NOT BE HERE IN THE END BUT YOU CAN BUILD THEM HERE
-	//Ask for the top players
-	//	socket.emit('getTopPlayer', function() {});
-
-	//will put html table on screen
-	//	socket.on('topScores', function(data) {
-	//build html table rows <tr> for each of the six elements
-	//ie <tr><td>Chris</td><td>100202</td><td>5</td></tr>
-	//remove the dummy data after the <th>
-	//Then use scoreTable in index.html to insert this block of html
-	//use innerHtml
-	//	});
-
 
 	$('#login').fadeOut();
 	$('#exit').toggle();
 	$('#scoreTable').toggle();
-
 
 	//kineticjs stage
 	var stage = new Kinetic.Stage({
