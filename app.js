@@ -1,7 +1,10 @@
-//CMPT 470 Technical evaluation Node.js, groupApollo
-//Server side application for game, loads files to clients and passes routes messages between
+//CMPT 470 group project "Monster Panic", groupApollo
+//Implemented using Node.js
+//Server side application for game, loads files to clients and passes and routes messages between
 //clients. Also arbitrates scoring by issuing out the points.
+//Player scores are stored and retrieved from a mongodb database located at mongoLab.com
 //Outstanding items of work are:
+//change scoring system as a ratio of points/robot
 
 
 // Including libraries and connection information to mongodb database

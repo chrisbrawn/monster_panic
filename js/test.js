@@ -1,4 +1,4 @@
-//CMPT 470 Technical evaluation Node.js, groupApollo
+//CMPT 470 Group Project "Monster Panic" groupApollo
 //Client side application for game. 
 //A kineticjs stage is set and the users character is added to it.
 //a message is sent to the server to add new user.
@@ -7,17 +7,20 @@
 //keypresses change direction of user. Other players positions are updated through message passing
 //user collects points. Collision detection is between the user and the maze and the other players.
 //robot is dead when he collides with enemy. Enemy collisions between themselves dont'matter.
+//points data is sent and received from the server.
 
 //use WASD keys to move robot
 
-//Outstanding items of work are:
-//#5-general layout and design.
-//#7-after deciding the roles for players, robot or enemy place the enemy away from
-//the robot at start.
-//#9-make tunnels work from left-right side of screen. Players should be able to go in a
-//tunnel and come out the other side.
+//Wish list:
+//Animation on monster/Robot after collision
+// change scoring system to reflect # of robots used
+
+//Bug list:
+//if a player has not moved from the default initial player and a new player joins
+//then the players may disappear()
 
 
+//preload all images
 var imagesLoaded = {};
 var sources = {
 	robot: 'images/robot.png',
@@ -50,16 +53,6 @@ loadImages(sources);
 var eatSnd = new Audio("/sound/Ting.wav");
 var hitSnd = new Audio("/sound/hit_small.wav");
 var startSnd = new Audio("/sound/start.wav");
-
-
-//will put html table on screen
-//socket.on('topScores',function(data){
-//build html table rows <tr> for each of the six elements
-//ie <tr><td>Chris</td><td>100202</td><td>5</td></tr>
-//remove the dummy data after the <th>
-//Then use scoreTable in index.html to insert this block of html
-//use innerHtml
-//})
 
 $('#start').click(function() {
 
@@ -150,7 +143,7 @@ $('#start').click(function() {
 	playerLoginName = $('#namebox').val();
 
 	if (playerLoginName != 'enter your name') {
-	//	console.log("name:" + playerLoginName);
+		//	console.log("name:" + playerLoginName);
 		socket.emit('newPlayer', {
 			name: playerLoginName,
 			score: 0,
@@ -232,10 +225,9 @@ $('#start').click(function() {
 	});
 
 
-	//our bounding box object
+	//our bounding box collision object
 	//is hidden from view.
-	//May be possible to remove at a later date.
-	var myRect = new Kinetic.Rect({
+	var collisionRect = new Kinetic.Rect({
 		x: gridSize * 20,
 		y: gridSize * 11,
 		width: gridSize,
@@ -285,8 +277,8 @@ $('#start').click(function() {
 	//sends the server a message to send to each player
 	var addPlayer = function() {
 		socket.emit('addPlayer', {
-			'x': myRect.getX(),
-			'y': myRect.getY(),
+			'x': collisionRect.getX(),
+			'y': collisionRect.getY(),
 			'id': id,
 			'score': points,
 			'name': playerName,
@@ -409,7 +401,7 @@ $('#start').click(function() {
 			height: 30
 		}]
 	};
-	charlayer.add(myRect);
+	charlayer.add(collisionRect);
 	charlayer.draw();
 
 
@@ -563,9 +555,9 @@ $('#start').click(function() {
 	//if a player robot has collided with a monster, send a
 	//collision message to server.
 	var checkForCollisions = function() {
-		var xGrid = myRect.getX();
+		var xGrid = collisionRect.getX();
 		xGrid = Math.floor(xGrid / gridSize);
-		var yGrid = myRect.getY();
+		var yGrid = collisionRect.getY();
 		yGrid = Math.floor(yGrid / gridSize);
 		var charGridX;
 		var charGridY;
@@ -577,7 +569,7 @@ $('#start').click(function() {
 				charGridX = Math.floor(charGridX / gridSize);
 				charGridY = Math.floor(charGridY / gridSize);
 				if (charGridY === yGrid && charGridX === xGrid && robot == 1) {
-					myRect.setFill('black');
+					collisionRect.setFill('black');
 					hitSnd.play();
 					socket.emit('collision', {
 						'id': id,
@@ -593,15 +585,15 @@ $('#start').click(function() {
 	//check maze values in the direction the user is going to see if there
 	//is an object in the way.
 	var checkMaze = function(direction) {
-		var xGrid = myRect.getX();
+		var xGrid = collisionRect.getX();
 		xGrid = Math.floor(xGrid / gridSize);
-		var yGrid = myRect.getY();
+		var yGrid = collisionRect.getY();
 		yGrid = Math.floor(yGrid / gridSize);
-		var xMod = myRect.getX() % gridSize;
-		var yMod = myRect.getY() % gridSize;
+		var xMod = collisionRect.getX() % gridSize;
+		var yMod = collisionRect.getY() % gridSize;
 		if (direction == 'left') {
 			xGrid -= 1;
-			var mazeValue = maze[yGrid][xGrid];
+			var mazeValue = mazeClone[yGrid][xGrid];
 			if (mazeValue == 1 && xMod >= 10) {
 				return 0;
 			} else {
@@ -609,7 +601,7 @@ $('#start').click(function() {
 			}
 		} else if (direction == 'right') {
 			xGrid += 1;
-			var mazeValue = maze[yGrid][xGrid];
+			var mazeValue = mazeClone[yGrid][xGrid];
 			if (mazeValue == 1 && xMod >= 10) {
 				return 0;
 			} else {
@@ -617,7 +609,7 @@ $('#start').click(function() {
 			}
 		} else if (direction == 'up') {
 			yGrid -= 1;
-			var mazeValue = maze[yGrid][xGrid];
+			var mazeValue = mazeClone[yGrid][xGrid];
 			if (mazeValue == 1 && yMod >= 10) {
 				return 0
 			} else {
@@ -625,7 +617,7 @@ $('#start').click(function() {
 			}
 		} else if (direction == 'down') {
 			yGrid += 1;
-			var mazeValue = maze[yGrid][xGrid];
+			var mazeValue = mazeClone[yGrid][xGrid];
 			return mazeValue;
 		}
 	}
@@ -633,23 +625,23 @@ $('#start').click(function() {
 	//check if player can move and update speed and set value on player
 	var updatePosition = function() {
 		var newXY;
-		var xMod = myRect.getX() % gridSize;
-		var yMod = myRect.getY() % gridSize;
-		if (myDirection == 'left' && checkMaze('left') == '0' && yMod == 0) {
-			newXY = myRect.getX() - speed;
-			myRect.setX(newXY);
+		var xMod = collisionRect.getX() % gridSize;
+		var yMod = collisionRect.getY() % gridSize;
+		if (myDirection == 'left' && checkMaze('left') != '1' && yMod == 0) {
+			newXY = collisionRect.getX() - speed;
+			collisionRect.setX(newXY);
 			robotObj.setX(newXY);
-		} else if (myDirection == 'right' && checkMaze('right') == '0' && yMod == 0) {
-			newXY = myRect.getX() + speed;
-			myRect.setX(newXY);
+		} else if (myDirection == 'right' && checkMaze('right') != '1' && yMod == 0) {
+			newXY = collisionRect.getX() + speed;
+			collisionRect.setX(newXY);
 			robotObj.setX(newXY);
-		} else if (myDirection == 'up' && checkMaze('up') == '0' && xMod == 0) {
-			newXY = myRect.getY() - speed;
-			myRect.setY(newXY);
+		} else if (myDirection == 'up' && checkMaze('up') != '1' && xMod == 0) {
+			newXY = collisionRect.getY() - speed;
+			collisionRect.setY(newXY);
 			robotObj.setY(newXY);
-		} else if (myDirection == 'down' && checkMaze('down') == '0' && xMod == 0) {
-			newXY = myRect.getY() + speed;
-			myRect.setY(newXY);
+		} else if (myDirection == 'down' && checkMaze('down') != '1' && xMod == 0) {
+			newXY = collisionRect.getY() + speed;
+			collisionRect.setY(newXY);
 			robotObj.setY(newXY);
 		}
 	};
@@ -733,12 +725,12 @@ $('#start').click(function() {
 		updatePosition();
 		//send position information to everyone
 		socket.emit('xymove', {
-			'x': myRect.getX(),
-			'y': myRect.getY(),
+			'x': collisionRect.getX(),
+			'y': collisionRect.getY(),
 			'id': id,
 			'score': points,
 			'name': playerName,
-			'playerLoginName':playerLoginName,
+			'playerLoginName': playerLoginName,
 			'currentDirection': myDirection,
 			'previousDirection': previousDirection,
 			'robot': robot
