@@ -60,9 +60,9 @@ $('#start').click(function() {
 	startSnd.play();
 
 	// The URL of your web server (the port is set in app.js)
-	//var url = 'cbrawn.monster_panic.jit.su:80';
+	var url = 'cbrawn.monster_panic.jit.su:80';
 	//uncomment below with your local ip to run locally
-	var url = '192.168.15.100:8080';
+	//var url = '192.168.15.103:8080';
 
 	var socket = io.connect(url);
 	//Ask for the top players
