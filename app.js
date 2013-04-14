@@ -74,16 +74,7 @@ app.listen(80);
 // If the URL of the socket server is opened in a browser
 
 function handler(request, response) {
-
-	console.log(players);	
-	if (players>=3){
-		 response.writeHead(200, { 'Content-Type': 'text/html' });
-		 response.write("<p>too many players for our poor little node.js server. Please try again soon.<p>\n");
-         response.end();
-		console.log("Too many players for little server");
-	}else{
 		fileServer.serve(request, response);
-}
 }
 
 // Delete this row if you want to see debug messages

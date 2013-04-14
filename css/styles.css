@@ -19,6 +19,12 @@
 	padding-top: 50px;
 }
 
+#compat {
+
+	color: red;
+
+}
+
 #exit{
 	position:absolute;
 	font-family: 'Share Tech Mono', sans-serif;
@@ -40,7 +46,7 @@
 	position:absolute;
 	top:20;
 	left:20;
-	margin-top: -875px;
+	margin-top: -895px;
 	margin-left: 00px;
 	padding-top: 100px;
 }
