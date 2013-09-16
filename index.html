@@ -10,6 +10,13 @@
     </head>
     
     <body>
+        <script>
+        var is_chrome = navigator.userAgent.toLowerCase().indexOf('chrome');
+        if (is_chrome<1){
+            alert("Sorry, please use Google Chrome to play Monster Panic!");
+        }
+        </script>
+
             <div id="login"><img src="images/login.png">
                 <div id="topScore">       <p id="compat"> ONLY COMPATIBLE WITH GOOGLE CHROME!</p> 
                     <p>Escape the planet by collecting the </p><p>energy crystals.</p>
